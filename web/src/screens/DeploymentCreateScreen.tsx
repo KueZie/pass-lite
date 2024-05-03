@@ -33,7 +33,7 @@ export function DeploymentCreateScreen() {
       <div className="flex flex-1 justify-center items-center">
         <Card className="w-[400px]">
           <CardHeader>
-            <CardTitle>Create project</CardTitle>
+            <CardTitle>Create a Deployment</CardTitle>
             <CardDescription>Deploy your new project in one-click.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -41,7 +41,7 @@ export function DeploymentCreateScreen() {
               <div className="grid w-full items-center gap-4">
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="name">Name</Label>
-                  <Input id="name" placeholder="Name of your project" />
+                  <Input id="name" placeholder="Name of your deployment" />
                 </div>
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="description">Description</Label>
@@ -63,8 +63,8 @@ export function DeploymentCreateScreen() {
                 </div>
                 {/* File Upload */}
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="file">Upload your project</Label>
-                  <Input type="file" id="file" />
+                  <Label htmlFor="file">Upload your project (.zip)</Label>
+                  <Input type="file" id="file" accept=".zip" />
                 </div>
               </div>
             </form>
