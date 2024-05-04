@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
 	"pass-lite/src/service"
 	"time"
 
@@ -15,30 +14,7 @@ type DeploymentCreateForm struct {
 	Name string `json:"name"`
 }
 
-// Loads a private key from a google returned json file
-func LoadPrivateKey(fileName string) ([]byte, error) {
-	file, err := os.Open(fileName)
-	if err != nil {
-		log.Fatalf("failed to open private key json file: %v", err)
-		return nil, err
-	}
-
-	var privateKey map[string]interface{}
-	d := json.NewDecoder(file)
-	if err := d.Decode(&privateKey); err != nil {
-		log.Fatalf("failed to decode private key json file: %v", err)
-		return nil, err
-	}
-
-	// privateKey is a string
-	privateKeyString, ok := privateKey["private_key"].(string)
-	if !ok {
-		log.Fatalf("private_key is not a string, %v")
-		return nil, err
-	}
-
-	return []byte(privateKeyString), nil
-}
+// Loads a private key from a PEM file
 
 func DeploymentCreateUploadHandler(w http.ResponseWriter, r *http.Request) {
 	var deployment DeploymentCreateForm
@@ -48,16 +24,9 @@ func DeploymentCreateUploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pk, error := LoadPrivateKey("pk.json")
-	if error != nil {
-		http.Error(w, error.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	deploymentService := service.DeploymentService{
-		BucketName: "pass-lite-deployments",
-		PrivateKey: pk,
-	}
+	deploymentService := service.NewDeploymentService(
+		"pass-lite-deployments",
+	)
 
 	// Create a new URL to upload the file to
 	uploadURL, err := deploymentService.CreatePreSignedUploadURL(deployment.Name)

@@ -1,7 +1,9 @@
 package service
 
 import (
+	"encoding/json"
 	"log"
+	"os"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -16,10 +18,35 @@ type DeploymentService struct {
 	PrivateKey []byte
 }
 
-func NewDeploymentService(bucketName string, privateKey []byte) *DeploymentService {
+func LoadPrivateKeyJSON(fileName string) ([]byte, error) {
+	r, err := os.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+
+	var j map[string]interface{}
+	d := json.NewDecoder(r)
+	err = d.Decode(&j)
+	if err != nil {
+		return nil, err
+	}
+
+	pk, ok := j["private_key"].(string)
+	if !ok {
+		log.Fatalf("private_key not found in %s", fileName)
+	}
+	return []byte(pk), nil
+}
+
+func NewDeploymentService(bucketName string) *DeploymentService {
+	key, err := LoadPrivateKeyJSON("pass-lite-credentials.json")
+	if err != nil {
+		log.Fatalf("failed to load private key: %v", err)
+	}
+
 	return &DeploymentService{
 		BucketName: bucketName,
-		PrivateKey: privateKey,
+		PrivateKey: key,
 	}
 }
 
@@ -29,9 +56,8 @@ func (d *DeploymentService) CreatePreSignedUploadURL(fileName string) (string, e
 	opts := &storage.SignedURLOptions{
 		GoogleAccessID:  		"deploymentservice@pass-lite.iam.gserviceaccount.com",
 		PrivateKey:      		d.PrivateKey,
-		Method:          		"GET",
+		Method:          		"PUT",
 		Expires:         		time.Now().Add(24 * time.Hour), 
-		ContentType:     		"application/zip",
 	}
 
 	url, err := storage.SignedURL(d.BucketName, fileName, opts)
