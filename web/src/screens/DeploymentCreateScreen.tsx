@@ -1,7 +1,7 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import {
   IconBrandGithub,
@@ -14,16 +14,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Select, SelectContent, SelectGroup, SelectTrigger, SelectValue, SelectItem } from "@/components/ui/select";
 
 export function DeploymentCreateScreen() {
-  const form = useForm({
+  const { handleSubmit, register, control } = useForm({
     defaultValues: {
       name: "",
       description: "",
-      url: "",
-      repository: "",
-      environment: "",
-      secret: "",
+      framework: "",
     },
   });
+
+  const submit = async (data: any) => {
+    console.log('Submitting', data);
+  }
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 text-left">
@@ -33,30 +34,36 @@ export function DeploymentCreateScreen() {
             <CardTitle>Create a Deployment</CardTitle>
             <CardDescription>Deploy your new project in one-click.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <form>
+          <form onSubmit={handleSubmit(submit)}>
+            <CardContent>
               <div className="grid w-full items-center gap-4">
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="name">Name</Label>
-                  <Input id="name" placeholder="Name of your deployment" />
+                  <Input id="name" placeholder="Name of your deployment" {...register("name")} />
                 </div>
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="description">Description</Label>
-                  <Input id="description" placeholder="Description of your project" />
+                  <Input id="description" placeholder="Description of your project" {...register("description")} />
                 </div>
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="framework">Framework</Label>
-                  <Select>
-                    <SelectTrigger id="framework">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent position="popper">
-                      <SelectItem value="next">Next.js</SelectItem>
-                      <SelectItem value="sveltekit">SvelteKit</SelectItem>
-                      <SelectItem value="astro">Astro</SelectItem>
-                      <SelectItem value="nuxt">Nuxt.js</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="framework"
+                    control={control}
+                    render={({ field }) => (
+                      <Select {...field} value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent position="popper">
+                          <SelectItem value="next">Next.js</SelectItem>
+                          <SelectItem value="sveltekit">SvelteKit</SelectItem>
+                          <SelectItem value="astro">Astro</SelectItem>
+                          <SelectItem value="nuxt">Nuxt.js</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="dropzone-file">Project Files</Label>
@@ -75,12 +82,12 @@ export function DeploymentCreateScreen() {
                 </div>
 
               </div>
-            </form>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button variant="outline">Preview</Button>
-            <Button>Deploy</Button>
-          </CardFooter>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button variant="outline">Preview</Button>
+              <Button type="submit">Deploy</Button>
+            </CardFooter>
+          </form>
         </Card>
       </div>
     </main >
