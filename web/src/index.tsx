@@ -4,6 +4,8 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ThemeProvider } from './ThemeProvider';
+import { Provider } from 'react-redux';
+import { store } from './slices/store';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -11,12 +13,14 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <ThemeProvider
-      defaultTheme='dark'
-      storageKey='ui-theme'
-    >
-      <App />
-    </ThemeProvider>
+    <Provider store={store}>
+      <ThemeProvider
+        defaultTheme='dark'
+        storageKey='ui-theme'
+      >
+        <App />
+      </ThemeProvider>
+    </Provider>
   </React.StrictMode>
 );
 
