@@ -82,10 +82,6 @@ func (d *DeploymentService) CreatePreSignedUploadURL(fileName string) (string, e
 		return "", fmt.Errorf("Bucket(%q).SignedURL: %w", d.BucketName, err)
 	}
 
-	fmt.Println("Generated PUT signed URL:")
-	fmt.Printf("%q\n", u)
-	fmt.Println("You can use this URL with any user agent, for example:")
-	fmt.Printf("curl -X PUT -H 'Content-Type: application/zip' --upload-file fake %q\n", u)
 	return u, nil
 
 }
