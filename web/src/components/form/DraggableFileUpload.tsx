@@ -91,9 +91,9 @@ export const DraggableFileUpload = ({
 
         ) : (
           <>
-            <p className="text-xs">Files uploaded</p>
+            <p>Files uploaded</p>
             {files.map((file, index) => (
-              <div key={index} className="flex items-center space-x-2 align-baseline">
+              <div key={index} className="flex text-sm text-primary/90 items-center space-x-2 align-baseline">
                 <span>{file.name}</span>
                 <span
                   onClick={() => setFiles(files.filter((_, i) => i !== index))}

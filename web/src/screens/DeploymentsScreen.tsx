@@ -1,36 +1,5 @@
-import Link from "react-router-dom"
-import {
-  Bell,
-  CircleUser,
-  Home,
-  LineChart,
-  Menu,
-  Package,
-  Package2,
-  Search,
-  ShoppingCart,
-  Users,
-} from "lucide-react"
-
-import { Badge } from "@/components/ui/badge"
+import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 export function Dashboard() {
   return (
@@ -48,7 +17,11 @@ export function Dashboard() {
           <p className="text-sm text-muted-foreground">
             You can add a new deployment by clicking the button below.
           </p>
-          <Button className="mt-4">Add Product</Button>
+          <Button className="mt-4">
+            <Link to="/dashboard/create">
+              Create Deployment
+            </Link>
+          </Button>
         </div>
       </div>
     </main>
