@@ -17,8 +17,8 @@ export function Dashboard() {
           <p className="text-sm text-muted-foreground">
             You can add a new deployment by clicking the button below.
           </p>
-          <Button className="mt-4">
-            <Link to="/dashboard/create">
+          <Button variant="outline" size="default" className="mt-4">
+            <Link to="/dashboard/deployments/create">
               Create Deployment
             </Link>
           </Button>

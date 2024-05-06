@@ -7,19 +7,22 @@ import { DeploymentCreateScreen } from './screens/DeploymentCreateScreen';
 import NotFoundScreen from './screens/NotFoundScreen';
 
 const AllRoutes = () => {
- return (
-  <Suspense fallback={<div>Loading...</div>}>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/dashboard" element={<DashboardLayout/>}>
-          <Route index element={<Dashboard />} />
-          <Route path="create" element={<DeploymentCreateScreen />} />
-        </Route>
-        <Route path="*" element={<NotFoundScreen />} />
-      </Routes>
-    </BrowserRouter>
-  </Suspense>
- )
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="dashboard" element={<DashboardLayout />}>
+            <Route index element={<h1>Dashboard</h1>} />
+            <Route path="deployments">
+              <Route index element={<Dashboard />} />
+              <Route path="create" element={<DeploymentCreateScreen />} />
+            </Route>
+          </Route>
+          <Route path="*" element={<NotFoundScreen />} />
+        </Routes>
+      </BrowserRouter>
+    </Suspense>
+  )
 };
 
 function App() {
