@@ -64,7 +64,10 @@ export const DraggableFileUpload = ({
 
   return (
     <div
-      className={`relative w-full h-44 ${files.length ? '': 'cursor-pointer'} ${isOver ? 'border-solid border-[6px] bg-primary-foreground' : 'border-dashed border-2 bg-primary-foreground/50'} border-secondary  rounded-lg flex flex-col justify-center items-center`}
+      className={`relative w-full h-44 
+        ${files.length ? '': 'cursor-pointer'} 
+        ${isOver ? 'border-solid border-[6px]' : 'border-solid border-2'} 
+        border-accent rounded-lg flex flex-col justify-center items-center bg-background`}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       onDragLeave={handleDragLeave}

@@ -68,14 +68,12 @@ export function DeploymentCreateScreen() {
         "Content-Type": "application/zip",
       },
     });
-
-    console.log(uploadResponse);
   };
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 text-left">
       <div className="flex flex-1 justify-center items-center">
-        <Card className="w-[400px] bg-muted/10">
+        <Card className="w-[400px] bg-primary-foreground dark:bg-muted/10">
           <CardHeader>
             <CardTitle>Create a Deployment</CardTitle>
             <CardDescription>
