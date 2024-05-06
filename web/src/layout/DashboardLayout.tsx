@@ -8,12 +8,9 @@ import {
   Package,
   Package2,
   Search,
-  ShoppingCart,
   Sun,
-  Users,
 } from "lucide-react"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -32,7 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Outlet } from "react-router-dom"
+import { Link, Outlet } from "react-router-dom"
 import { useState } from "react"
 import { useTheme } from "@/ThemeProvider"
 
@@ -55,20 +52,20 @@ export function DashboardLayout() {
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-              <a
-                href="#"
+              <Link
+                to="/dashboard"
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
               >
                 <Home className="h-4 w-4" />
                 Dashboard
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to="/dashboard/deployments"
                 className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
               >
                 <Package className="h-4 w-4" />
                 Deployments{" "}
-              </a>
+              </Link>
               <a
                 href="#"
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
