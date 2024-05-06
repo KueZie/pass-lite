@@ -1,12 +1,16 @@
 package service
 
 import (
-	"encoding/json"
+	"context"
+	"fmt"
 	"log"
 	"os"
 	"time"
 
 	"cloud.google.com/go/storage"
+	"golang.org/x/oauth2/google"
+	"golang.org/x/oauth2/jwt"
+	"google.golang.org/api/option"
 )
 
 type DeploymentUploadService interface {
@@ -14,57 +18,74 @@ type DeploymentUploadService interface {
 }
 
 type DeploymentService struct {
-	BucketName string
-	PrivateKey []byte
+	BucketName          string
+	PrivateKey          []byte
+	ServiceAccountEmail string
 }
 
-func LoadPrivateKeyJSON(fileName string) ([]byte, error) {
-	r, err := os.Open(fileName)
+func LoadJWTConfigFromFile(fileName string) (*jwt.Config, error) {
+	file, err := os.ReadFile(fileName)
 	if err != nil {
-		return nil, err
+		log.Fatalf("failed to read private key file: %v", err)
 	}
 
-	var j map[string]interface{}
-	d := json.NewDecoder(r)
-	err = d.Decode(&j)
+	cfg, err := google.JWTConfigFromJSON(file)
 	if err != nil {
-		return nil, err
+		log.Fatalf("failed to parse private key: %v", err)
 	}
 
-	pk, ok := j["private_key"].(string)
-	if !ok {
-		log.Fatalf("private_key not found in %s", fileName)
-	}
-	return []byte(pk), nil
+	return cfg, err
 }
 
 func NewDeploymentService(bucketName string) *DeploymentService {
-	key, err := LoadPrivateKeyJSON("pass-lite-credentials.json")
+	cfg, err := LoadJWTConfigFromFile("pass-lite-credentials.json")
 	if err != nil {
 		log.Fatalf("failed to load private key: %v", err)
 	}
 
+	log.Printf("loaded private key for service account: %s", cfg.Email)
+
 	return &DeploymentService{
-		BucketName: bucketName,
-		PrivateKey: key,
+		BucketName:          bucketName,
+		PrivateKey:          cfg.PrivateKey,
+		ServiceAccountEmail: cfg.Email,
 	}
 }
 
 // CreatePreSignedUploadURL creates a pre-signed URL that can be used to upload a file to the bucket
 func (d *DeploymentService) CreatePreSignedUploadURL(fileName string) (string, error) {
 
-	opts := &storage.SignedURLOptions{
-		GoogleAccessID:  		"deploymentservice@pass-lite.iam.gserviceaccount.com",
-		PrivateKey:      		d.PrivateKey,
-		Method:          		"PUT",
-		Expires:         		time.Now().Add(24 * time.Hour), 
-	}
-
-	url, err := storage.SignedURL(d.BucketName, fileName, opts)
+	ctx := context.Background()
+	client, err := storage.NewClient(ctx, option.WithCredentialsFile("pass-lite-credentials.json"))
 	if err != nil {
-		log.Printf("failed to create signed url: %v", err)
-		return "", err
+		return "", fmt.Errorf("storage.NewClient: %w", err)
+	}
+	defer client.Close()
+
+	// Signing a URL requires credentials authorized to sign a URL. You can pass
+	// these in through SignedURLOptions with one of the following options:
+	//    a. a Google service account private key, obtainable from the Google Developers Console
+	//    b. a Google Access ID with iam.serviceAccounts.signBlob permissions
+	//    c. a SignBytes function implementing custom signing.
+	// In this example, none of these options are used, which means the SignedURL
+	// function attempts to use the same authentication that was used to instantiate
+	// the Storage client. This authentication must include a private key or have
+	// iam.serviceAccounts.signBlob permissions.
+	opts := &storage.SignedURLOptions{
+		Method:         "PUT",
+		Expires:        time.Now().Add(24 * time.Hour),
+		ContentType:    "application/zip",
 	}
 
-	return url, nil
+	u, err := client.Bucket(d.BucketName).SignedURL(fileName, opts)
+	if err != nil {
+		return "", fmt.Errorf("Bucket(%q).SignedURL: %w", d.BucketName, err)
+	}
+
+	fmt.Println("Generated PUT signed URL:")
+	fmt.Printf("%q\n", u)
+	fmt.Println("You can use this URL with any user agent, for example:")
+	fmt.Printf("curl -X PUT -H 'Content-Type: application/zip' --upload-file fake %q\n", u)
+	return u, nil
+
 }

@@ -5,22 +5,39 @@ import (
 	"log"
 	"net/http"
 	"pass-lite/src/service"
+	"strings"
 	"time"
 
 	mux "github.com/gorilla/mux"
 )
 
 type DeploymentCreateForm struct {
-	Name string `json:"name"`
+	Name 					string `json:"name"`
+	// Description 	string `json:"description"`
+	// Framework 		string `json:"framework"`
 }
 
 // Loads a private key from a PEM file
 
 func DeploymentCreateUploadHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	ct := r.Header.Get("Content-Type")
+    if ct != "" {
+        mediaType := strings.ToLower(strings.TrimSpace(strings.Split(ct, ";")[0]))
+        if mediaType != "application/json" {
+            msg := "Content-Type header is not application/json"
+            http.Error(w, msg, http.StatusUnsupportedMediaType)
+            return
+        }
+    }
 	var deployment DeploymentCreateForm
 	err := json.NewDecoder(r.Body).Decode(&deployment)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		log.Printf("error decoding request body: %s", err)
 		return
 	}
 
@@ -37,7 +54,7 @@ func DeploymentCreateUploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Return the URL to the client so they can upload the file directly
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"upload_url": uploadURL})	
+	json.NewEncoder(w).Encode(map[string]string{"uploadUrl": uploadURL})	
 }
 
 func main() {
