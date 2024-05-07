@@ -5,17 +5,20 @@ import { DashboardLayout } from './layout/DashboardLayout';
 import { BrowserRouter, Outlet, Route, Routes } from 'react-router-dom';
 import { DeploymentCreateScreen } from './screens/DeploymentCreateScreen';
 import NotFoundScreen from './screens/NotFoundScreen';
+import RootLayout from './layout/RootLayout';
 
 const AllRoutes = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <BrowserRouter>
         <Routes>
-          <Route path="dashboard" element={<DashboardLayout />}>
-            <Route index element={<h1>Dashboard</h1>} />
-            <Route path="deployments">
-              <Route index element={<Dashboard />} />
-              <Route path="create" element={<DeploymentCreateScreen />} />
+          <Route element={<RootLayout />} >
+            <Route path="dashboard">
+              <Route index element={<h1>Dashboard</h1>} />
+              <Route path="deployments">
+                <Route index element={<Dashboard />} />
+                <Route path="create" element={<DeploymentCreateScreen />} />
+              </Route>
             </Route>
           </Route>
           <Route path="*" element={<NotFoundScreen />} />

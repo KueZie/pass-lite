@@ -1,14 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useForm, Controller } from "react-hook-form";
-import { cn } from "@/lib/utils";
-import {
-  IconBrandGithub,
-  IconBrandGoogle,
-  IconBrandOnlyfans,
-} from "@tabler/icons-react";
-import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,7 +14,6 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectTrigger,
   SelectValue,
   SelectItem,
@@ -31,16 +23,16 @@ import {
   useCreateDeploymentUploadLinkMutation,
 } from "@/slices/api";
 import { ErrorMessage } from "@hookform/error-message";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 import { DraggableFileUpload } from "@/components/form/DraggableFileUpload";
+import { useToast } from "@/components/ui/use-toast";
+import { MdErrorOutline } from "react-icons/md";
 
 export function DeploymentCreateScreen() {
   const {
     handleSubmit,
     register,
     control,
-    formState: { dirtyFields, errors},
+    formState: { dirtyFields, errors },
   } = useForm({
     defaultValues: {
       name: "",
@@ -49,10 +41,11 @@ export function DeploymentCreateScreen() {
       file: null,
     },
     mode: "onSubmit",
-    reValidateMode: "onBlur",
+    reValidateMode: "onBlur"
   });
 
   const [createDeploymentUploadLink] = useCreateDeploymentUploadLinkMutation();
+  const { toast } = useToast();
 
   const submit = async (data: any) => {
     const request = {
@@ -61,13 +54,18 @@ export function DeploymentCreateScreen() {
     const response = await createDeploymentUploadLink(request).unwrap();
     console.log(data.file);
 
-    const uploadResponse = await fetch(response.uploadUrl, {
-      method: "PUT",
-      body: data.file[0],
-      headers: {
-        "Content-Type": "application/zip",
-      },
-    });
+    // const uploadResponse = await fetch(response.uploadUrl, {
+    //   method: "PUT",
+    //   body: data.file[0],
+    //   headers: {
+    //     "Content-Type": "application/zip",
+    //   },
+    // });
+
+    toast({
+      title: "Deployment created",
+      description: "Your deployment has been created successfully.",
+    })
   };
 
   return (
@@ -88,8 +86,24 @@ export function DeploymentCreateScreen() {
                   <Input
                     id="name"
                     placeholder="Name of your deployment"
-                    {...register("name")}
+                    {...register("name", {
+                      required: "Name is required",
+                      validate: {
+                        length: (value) => {
+                          if (value.length < 3) {
+                            return "Name must be at least 3 characters long.";
+                          }
+                          return true;
+                        },
+                      }
+                    })}
                   />
+                  <ErrorMessage
+                    errors={errors}
+                    name="name"
+                    render={({ message }) => (
+                      <div className="flex items-center text-destructive"><MdErrorOutline size="16px" className="mr-2"/><p className="leading-tight">{message}</p></div>
+                    )} />
                 </div>
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="description">Description</Label>
@@ -122,9 +136,34 @@ export function DeploymentCreateScreen() {
                   <Controller
                     name="file"
                     control={control}
+                    rules={{
+                      validate: {
+                        present: (value) => {
+                          if (!value) {
+                            return "Please upload a file.";
+                          }
+                          return true;
+                        },
+                        type: (value: any) => {
+                          console.log(value[0].type, dirtyFields.file)
+                          // Types are trivially convertable to application/zip
+                          const allowedTypes = ["application/zip", "application/octet-stream", "application/x-zip-compressed"];
+                          if (dirtyFields.file && !allowedTypes.includes(value[0].type)) {
+                            return "Invalid file type. Please upload a ZIP file.";
+                          }
+                          return true;
+                        }
+                      }
+                    }}
                     render={({ field: { onChange } }) => (
                       <DraggableFileUpload
                         onFiles={onChange} />
+                    )} />
+                  <ErrorMessage
+                    errors={errors}
+                    name="file"
+                    render={({ message }) => (
+                      <div className="flex items-center text-destructive"><MdErrorOutline size="16px" className="mr-2"/><p className="leading-tight">{message}</p></div>
                     )} />
                 </div>
               </div>
