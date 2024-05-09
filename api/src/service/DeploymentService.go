@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"pass-lite/src/database"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -13,14 +14,17 @@ import (
 	"google.golang.org/api/option"
 )
 
-type DeploymentUploadService interface {
-	CreatePreSignedUploadURL(fileName string) (string, error)
-}
-
 type DeploymentService struct {
 	BucketName          string
 	PrivateKey          []byte
 	ServiceAccountEmail string
+}
+
+type Deployment struct {
+	DeploymentName         string `gorm:"column:DeploymentName"`
+	DeploymentFileName     string `gorm:"column:DeploymentFileName"`
+	DeploymentType		     string `gorm:"column:DeploymentType"`
+	DeploymentCreatedAt    time.Time `gorm:"column:DeploymentCreatedAt"`
 }
 
 func LoadJWTConfigFromFile(fileName string) (*jwt.Config, error) {
@@ -52,15 +56,61 @@ func NewDeploymentService(bucketName string) *DeploymentService {
 	}
 }
 
+/* CreateDeployment creates a new deployment in the database */
+func (d *DeploymentService) CreateDeployment(deployment Deployment) error {
+	conn, err := database.CreateDatabaseConnection()
+	if err != nil {
+		log.Fatalf("failed to connect to database: %v", err)
+	}
+
+	if err := conn.Table("DeploymentMetadata").Omit("DeploymentCreatedAt").Create(&deployment).Error; err != nil {
+		return fmt.Errorf("conn.Table.Create: %w", err)
+	}
+
+	return nil
+}
+
+func (d *DeploymentService) GetDeployment(deploymentName string) (*Deployment, error) {
+	conn, err := database.CreateDatabaseConnection()
+	if err != nil {
+		log.Fatalf("failed to connect to database: %v", err)
+	}
+
+	var deployment Deployment
+	if err := conn.Table("DeploymentMetadata").Where("DeploymentName = ?", deploymentName).First(&deployment).Error; err != nil {
+		return nil, fmt.Errorf("conn.Table.Where.First: %w", err)
+	}
+
+	return &deployment, nil
+}
+
+func (d *DeploymentService) ListDeployments() ([]*Deployment, error) {
+	conn, err := database.CreateDatabaseConnection()
+	if err != nil {
+		log.Fatalf("failed to connect to database: %v", err)
+	}
+
+	var deployments []*Deployment
+	if err := conn.Table("DeploymentMetadata").Find(&deployments).Error; err != nil {
+		return nil, fmt.Errorf("conn.Table.Find: %w", err)
+	}
+
+	return deployments, nil
+}
+
 // CreatePreSignedUploadURL creates a pre-signed URL that can be used to upload a file to the bucket
-func (d *DeploymentService) CreatePreSignedUploadURL(fileName string) (string, error) {
+func (d *DeploymentService) CreateDeploymentUploadUrl(deploymentName string) (string, error) {
+	deployment, err := d.GetDeployment(deploymentName)
+	if err != nil {
+		return "", fmt.Errorf("d.GetDeployment: %w", err)
+	}
 
 	ctx := context.Background()
-	client, err := storage.NewClient(ctx, option.WithCredentialsFile("pass-lite-credentials.json"))
+	storageClient, err := storage.NewClient(ctx, option.WithCredentialsFile("pass-lite-credentials.json"))
 	if err != nil {
 		return "", fmt.Errorf("storage.NewClient: %w", err)
 	}
-	defer client.Close()
+	defer storageClient.Close()
 
 	// Signing a URL requires credentials authorized to sign a URL. You can pass
 	// these in through SignedURLOptions with one of the following options:
@@ -72,12 +122,12 @@ func (d *DeploymentService) CreatePreSignedUploadURL(fileName string) (string, e
 	// the Storage client. This authentication must include a private key or have
 	// iam.serviceAccounts.signBlob permissions.
 	opts := &storage.SignedURLOptions{
-		Method:         "PUT",
-		Expires:        time.Now().Add(24 * time.Hour),
-		ContentType:    "application/zip",
+		Method:      "PUT",
+		Expires:     time.Now().Add(24 * time.Hour),
+		ContentType: "application/zip",
 	}
 
-	u, err := client.Bucket(d.BucketName).SignedURL(fileName, opts)
+	u, err := storageClient.Bucket(d.BucketName).SignedURL(deployment.DeploymentFileName, opts)
 	if err != nil {
 		return "", fmt.Errorf("Bucket(%q).SignedURL: %w", d.BucketName, err)
 	}
