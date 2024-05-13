@@ -7,6 +7,8 @@ import {
   Moon,
   Package,
   Package2,
+  PlusCircle,
+  PlusSquare,
   Search,
   Sun,
 } from "lucide-react"

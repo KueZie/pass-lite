@@ -6,6 +6,7 @@ import { BrowserRouter, Outlet, Route, Routes } from 'react-router-dom';
 import { DeploymentCreateScreen } from './screens/DeploymentCreateScreen';
 import NotFoundScreen from './screens/NotFoundScreen';
 import RootLayout from './layout/RootLayout';
+import { DeploymentPreviewScreen } from './screens/DeploymentPreviewScreen';
 
 const AllRoutes = () => {
   return (
@@ -18,6 +19,7 @@ const AllRoutes = () => {
               <Route path="deployments">
                 <Route index element={<Dashboard />} />
                 <Route path="create" element={<DeploymentCreateScreen />} />
+                <Route path="preview" element={<DeploymentPreviewScreen />} />
               </Route>
             </Route>
           </Route>
