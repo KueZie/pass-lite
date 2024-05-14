@@ -3,9 +3,12 @@ phases:
   install:
     runtime-versions:
       nodejs: 12
+  pre_build:
+    commands:
+      - cd web
+      - npm install
   build:
     commands:
-      - npm install
       - npm run build
 
 artifacts:
