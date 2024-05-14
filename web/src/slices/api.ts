@@ -1,6 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { Deployment } from '@/types/Deployment';
 
+export interface BaseApiResponse {
+  timestamp: string;
+}
+
 export interface CreateDeploymentUploadLinkRequest {
   name: string;
 }
@@ -19,7 +23,7 @@ export interface CreateDeploymentResponse {}
 
 export const api = createApi({
   reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
   tagTypes: [],
   endpoints: (builder) => ({
     createDeployment: builder.mutation<CreateDeploymentResponse, CreateDeploymentRequest>({
@@ -36,7 +40,7 @@ export const api = createApi({
       }),
     }),
     listDeployments: builder.query<Deployment[], void>({
-      query: () => 'deployment/list',
+      query: () => 'deployment',
     }),
   }),
 })

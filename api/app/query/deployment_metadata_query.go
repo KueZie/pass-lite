@@ -45,8 +45,8 @@ func CreateDeploymentMetadata(deploymentMetadata *model.DeploymentMetadata) erro
 	}
 
 	_, err = c.Exec(
-		"INSERT INTO deployment_metadata (name, type, region, source) VALUES ($1, $2, $3, $4)",
-		deploymentMetadata.Name, deploymentMetadata.Type, deploymentMetadata.Region, deploymentMetadata.Source)
+		"INSERT INTO deployment_metadata (name, type, region, source, source_url) VALUES ($1, $2, $3, $4, $5)",
+		deploymentMetadata.Name, deploymentMetadata.Type, deploymentMetadata.Region, deploymentMetadata.Source, deploymentMetadata.SourceUrl)
 	if err != nil {
 		log.Printf("error creating deployment metadata: %v", err)
 		return err

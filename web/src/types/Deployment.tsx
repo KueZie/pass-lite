@@ -1,6 +1,7 @@
 export interface Deployment {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: string;
+  name: string
+  source: string
+  sourceUrl: string
+  type: string
+  region: string
 }

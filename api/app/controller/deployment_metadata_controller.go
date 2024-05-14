@@ -59,9 +59,5 @@ func ListDeploymentMetadata(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(fiber.Map{
-		"status": fiber.StatusOK,
-		"timestamp": time.Now().Unix(),
-		"data": deployments,
-	})
+	return c.JSON(deployments)
 }

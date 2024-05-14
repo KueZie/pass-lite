@@ -5,26 +5,17 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useListDeploymentsQuery } from "@/slices/api"
+import { Deployment } from "@/types/Deployment"
 import { MoreHorizontal } from "lucide-react"
 import { useEffect } from "react"
 import { createPortal } from "react-dom"
 import { MdAddCircleOutline } from "react-icons/md"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 export function Dashboard() {
   const { data: deployments, isLoading } = useListDeploymentsQuery()
 
-  useEffect(() => {
-    console.log(deployments)
-  }, [deployments])
-
-  const SkeletonRow = () => {
-    return (
-      <TableRow>
-        <Skeleton className="hidden w-[100px] sm:table-cell" />
-      </TableRow>
-    )
-  }
+  const navigate = useNavigate();
 
   const NoDeployments = () => (
     <div
@@ -71,9 +62,9 @@ export function Dashboard() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="hidden md:table-cell">Price</TableHead>
+                  <TableHead className="hidden md:table-cell">Region</TableHead>
                   <TableHead className="hidden md:table-cell">
-                    Total Sales
+                    Source
                   </TableHead>
                   <TableHead className="hidden md:table-cell">Created at</TableHead>
                   <TableHead>
@@ -89,14 +80,21 @@ export function Dashboard() {
                     <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                   </TableRow>))}
-                {deployments?.map((deployment: any) => (
-                  <TableRow key={deployment.DeploymentName}>
-                    <TableCell className="font-medium">{deployment.DeploymentName}</TableCell>
-                    <TableCell>
-                      <Badge variant="default">Active</Badge>
+                {deployments?.map((deployment: Deployment) => (
+                  <TableRow
+                    key={deployment.name}>
+                    <TableCell
+                      className="font-medium cursor-pointer transition-colors hover:underline underline-offset-4 tracking-wide"
+                      onClick={(e: any) => {
+                        navigate(`/dashboard/deployments/${deployment.name}`)
+                      }}>
+                      {deployment.name}
                     </TableCell>
-                    <TableCell className="hidden md:table-cell">$199.99</TableCell>
-                    <TableCell className="hidden md:table-cell">30</TableCell>
+                    <TableCell>
+                      <Badge variant="default">Running</Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">{deployment.region}</TableCell>
+                    <TableCell className="hidden md:table-cell">{deployment.source}</TableCell>
                     <TableCell className="hidden md:table-cell">
                       2024-02-14 02:14 PM
                     </TableCell>

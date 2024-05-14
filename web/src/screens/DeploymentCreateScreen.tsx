@@ -13,7 +13,7 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { MdErrorOutline } from "react-icons/md";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, redirect, useNavigate } from "react-router-dom";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { IconBrandBitbucket, IconBrandGitlab } from "@tabler/icons-react";
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -50,7 +50,7 @@ export function DeploymentCreateScreen() {
   const onSubmit = async (data: any) => {
     localStorage.setItem("deployment", JSON.stringify(data));
     console.log(data);
-    navigate("/dashboard/deployments/preview");
+    window.location.href = "http://localhost:8080/api/oauth/github/authorize";
   }
 
   return (
@@ -65,7 +65,7 @@ export function DeploymentCreateScreen() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/dashboard/deployments">Deployments</Link>
+              <Link to="/dashboard/deployment">Deployments</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -213,8 +213,7 @@ export function DeploymentCreateScreen() {
               rules={{ required: 'Region is required' }}
               render={({ field }) => (
                 <Select
-                  onValueChange={(value: string) => setValue("region", value)}
-                  onOpenChange={(isOpen) => console.log(isOpen)}>
+                  onValueChange={(value: string) => setValue("region", value)}>
                   <SelectTrigger className="text-red">
                     <SelectValue placeholder="Select a region" />
                   </SelectTrigger>

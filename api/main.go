@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"time"
 
 	"pass-lite/app/controller"
@@ -33,5 +34,14 @@ func main() {
 	d.Get("/:deploymentName", controller.GetDeploymentMetadata)
 	d.Get("/", controller.ListDeploymentMetadata)
 
-	app.Listen(":8080")
+	oauth := api.Group("/oauth")
+	github := oauth.Group("/github")
+	github.Get("/authorize", controller.AuthorizeGithub)
+	github.Get("/callback", controller.AuthorizeGithubCallback)
+
+	build := api.Group("/build")
+	build.Post("/project/:deploymentName", controller.CreateBuildProject)
+	build.Post("/project/:deploymentName/start", controller.StartBuildProject)
+
+	log.Fatal(app.Listen(":8080"))
 }
