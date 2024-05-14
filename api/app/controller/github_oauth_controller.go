@@ -2,6 +2,7 @@ package controller
 
 import (
 	"log"
+	"os"
 
 	"golang.org/x/oauth2"
 
@@ -10,8 +11,8 @@ import (
 
 func NewGithubOAuthConfig() *oauth2.Config {
 	return &oauth2.Config{
-		ClientID:     "Ov23liqDbTA8wyotuaY8",
-		ClientSecret: "ef47e9ffc1d311f09c152ddecd3567b682f30996",
+		ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
+		ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
 		Scopes:       []string{"repo", "user"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://github.com/login/oauth/authorize",
