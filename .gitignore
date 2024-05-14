@@ -1,3 +1,5 @@
 # Ignore air temp files
 tmp/
 
+# environment variables
+env
