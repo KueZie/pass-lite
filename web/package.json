@@ -45,7 +45,8 @@
     "zod": "^3.23.5"
   },
   "scripts": {
-    "start": "craco start"
+    "start": "craco start",
+    "build": "craco build"
   },
   "eslintConfig": {
     "extends": [
