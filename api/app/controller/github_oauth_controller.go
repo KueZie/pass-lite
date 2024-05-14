@@ -10,8 +10,8 @@ import (
 
 func NewGithubOAuthConfig() *oauth2.Config {
 	return &oauth2.Config{
-		ClientID:     "",
-		ClientSecret: "",
+		ClientID:     "Ov23liqDbTA8wyotuaY8",
+		ClientSecret: "ef47e9ffc1d311f09c152ddecd3567b682f30996",
 		Scopes:       []string{"repo", "user"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://github.com/login/oauth/authorize",

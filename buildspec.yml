@@ -8,3 +8,8 @@ phases:
     commands:
       - npm install
       - npm run build
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: 'build'
